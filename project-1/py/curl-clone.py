@@ -57,7 +57,6 @@ def get_mess(sock, ip_addr, req_string):
 
             if(len(part_msg)  != 0):
                 msg += part_msg
-                print(part_msg)
             else:
                 return msg
 
@@ -88,7 +87,7 @@ def make_request(req_address, redirects = 0):
     ip_addr, strip_addr, req_path = get_addr(req_address)
 
 
-    req_string = f"GET {req_path} HTTP/1.1\r\nHost: {strip_addr}\r\n\r\n"
+    req_string = f"GET {req_path} HTTP/1.1\r\nHost: {strip_addr}\r\nConnection: close\r\n\r\n"
     
     msg = get_mess(sock, ip_addr, req_string)
 
@@ -96,7 +95,7 @@ def make_request(req_address, redirects = 0):
 
     http_header = msg.split("\r\n")
 
-    resp_body = http_header[-1]
+    resp_body = ""
 
     for line in http_header:
         if("HTTP/1.1" in line):
@@ -114,7 +113,10 @@ def make_request(req_address, redirects = 0):
         elif("Content-Type:" in line and not(is_redirect)):
             if("text/html" in line):
                 is_text = True
+        elif("html" in line or "HTML" in line):
+            resp_body = line
     
+
     if(not(is_redirect) and is_text):
         print(resp_body)
 
